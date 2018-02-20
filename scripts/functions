@@ -102,7 +102,7 @@ link_file () {
    	success "linked $1 to $2"
     else
 	mkdir -p $(dirname $2)
-	sudo ln -s "$1" "$2"
+	ln -s "$1" "$2"
 	success "linked $1 to $2"
     fi
   fi

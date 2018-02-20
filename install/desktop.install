@@ -1,8 +1,0 @@
-#!/bin/sh
-
-
-source ./scripts/functions
-
-FILE="$(pwd)/install/xinitrc.desktop"
-
-link_file $FILE /usr/share/xsessions/xinitrc-xmonad.desktop true
