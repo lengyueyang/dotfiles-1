@@ -1,0 +1,37 @@
+"Basic Stuff
+set nocompatible
+syntax enable
+filetype plugin on
+
+"Enable autocompletion
+set path+=**
+set wildmenu
+
+"Vundle Setup + plugins
+
+set rtp+=~/.vim/bundle/Vundle.vim
+
+
+call vundle#begin()
+
+	Plugin 'gmarik/Vundle.vim'
+
+	Plugin 'vim-airline/vim-airline'
+	
+	Plugin 'vim-airline/vim-airline-themes'
+
+call vundle#end()
+
+
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+"Tab to last buffer
+nnoremap <tab> :bNext<CR>
+
+
+"code indentation
+set foldmethod=syntax
+set foldnestmax=10
+
+set foldlevel=2
+nnoremap <space> za

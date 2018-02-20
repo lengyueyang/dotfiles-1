@@ -1,1 +1,20 @@
-/home/grahnen/.dotfiles/zsh/zshrc
+#
+# Executes commands at the start of an interactive session.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# Customize to your needs...
+DEFAULT_USER=grahnen
+. ~/.zfiles/z.sh
+
+export XKB_DEFAULT_LAYOUT=se
+
+#nvim?
+#alias vim=nvim
+alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
