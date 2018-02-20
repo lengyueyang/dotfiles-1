@@ -1,0 +1,8 @@
+[Unit]
+Description=BackgroundChanger
+
+[Service]
+ExecStart=/home/grahnen/.dotfiles/scripts/bg.sh
+
+[Install]
+WantedBy=default.target

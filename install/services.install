@@ -1,0 +1,18 @@
+#!/bin/sh
+
+source ./scripts/functions
+SDIR=$(pwd)/services
+
+FILES=$(ls services)
+
+set -e
+cd "$(dirname "$0")/.."
+DOTFILES_ROOT=$(pwd -P)
+
+info 'linking services'
+overwrite_all=false backup_all=false skip_all=false
+for i in ${FILES[@]}
+do
+  link_file "$SDIR/$i" "$HOME/.config/systemd/user/$i" 
+  systemctl enable --user --now $i
+done

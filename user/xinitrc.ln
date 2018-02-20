@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if test x"$DBUS_SESSION_BUS_ADDRESS" = x""; then
+	dbuslaunch='which dbus-launch'
+	if test x"$dbuslaunch" != x"" -a x"$dbuslaunch" != x"no"; then
+		eval $dbuslaunch --sh-syntax --exit-with-session
+	fi
+fi
+
+#Useful programs
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+#exec compton -CGb
+exec xfce4-power-manager &
+#exec ff-theme-util &
+exec fix_xcursor &
+exec pa-applet &
+#exec ~/.screenlayout/default.sh
+#exec ~/.dotfiles/scripts/bg.sh
+#exec ~/.cabal/bin/taffybar &
+
+exec ~/.cabal/bin/xmonad

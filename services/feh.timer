@@ -1,0 +1,9 @@
+[Unit]
+Description=Changes Background every x seconds
+
+[Timer]
+OnActiveSec=5sec
+OnUnitActiveSec=40s
+
+[Install]
+WantedBy=default.target
