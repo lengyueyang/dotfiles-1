@@ -97,7 +97,6 @@ link_file () {
 }
 install_submodules(){
   info 'installing submodules'
-  git submodule init
   git submodule update --init --recursive
   local overwrite_all=false backup_all=false skip_all=false
   link_file "${DOTFILES_ROOT}/spacemacs" "${HOME}/.emacs.d"

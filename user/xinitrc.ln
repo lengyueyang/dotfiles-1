@@ -14,6 +14,7 @@ exec xfce4-power-manager &
 #exec ff-theme-util &
 exec fix_xcursor &
 exec pa-applet &
+exec nm-applet &
 #exec ~/.screenlayout/default.sh
 #exec ~/.dotfiles/scripts/bg.sh
 #exec ~/.cabal/bin/taffybar &
