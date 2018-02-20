@@ -1,0 +1,252 @@
+{-# LANGUAGE AllowAmbiguousTypes, DeriveDataTypeable, MultiParamTypeClasses, TypeSynonymInstances #-}
+
+import XMonad
+import Data.Monoid
+import System.Exit
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.ManageDocks
+import XMonad.Util.Run(spawnPipe, hPutStrLn)
+import XMonad.Actions.CycleWS
+
+import XMonad.Hooks.EwmhDesktops
+import System.Taffybar.Hooks.PagerHints(pagerHints)
+
+import XMonad.Layout.BoringWindows
+import XMonad.Layout.ResizableTile
+import XMonad.Layout.SubLayouts
+import XMonad.Layout.Accordion
+import XMonad.Layout.WindowNavigation
+import XMonad.Layout.MultiToggle
+import XMonad.Layout.MultiToggle.Instances
+import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.NoFrillsDecoration
+import XMonad.Layout.Tabbed
+import XMonad.Layout.Simplest
+import XMonad.Layout.Fullscreen
+
+import XMonad.Hooks.FadeWindows
+import XMonad.Hooks.ManageHelpers
+
+import XMonad.Layout.Spacing
+import XMonad.Layout.NoBorders
+import qualified XMonad.StackSet as W
+import qualified Data.Map as M
+
+----Colors
+base03  = "#002b36"
+base02  = "#073642"
+base01  = "#586e75"
+base00  = "#657b83"
+base0   = "#839496"
+base1   = "#93a1a1"
+base2   = "#eee8d5"
+base3   = "#fdf6e3"
+yellow  = "#b58900"
+orange  = "#cb4b16"
+red     = "#dc322f"
+magenta = "#d33682"
+violet  = "#6c71c4"
+blue    = "#268bd2"
+cyan    = "#2aa198"
+green = "#859900"
+
+----
+
+myFont = "xft:Hack-8"
+
+myTerminal = "xfce4-terminal"
+browser = "firefox"
+editor = "emacsclient -c"
+
+myFocusFollowsMouse = False
+
+myBorderWidth = 0
+topBar = 10
+
+myModMask = mod4Mask
+
+inactive = base03
+active = magenta
+activetab = green
+
+----Fake title for top border
+topBarTheme = def
+	{ fontName = myFont
+	, inactiveBorderColor = inactive
+	, inactiveColor = inactive
+	, inactiveTextColor = inactive
+	, activeBorderColor = active
+	, activeColor = active
+	, activeTextColor = active
+	, urgentBorderColor = red
+	, urgentTextColor = yellow
+	, decoHeight = topBar
+	}
+
+
+tabTheme = def
+  { fontName = myFont
+  , activeColor = activetab
+  , inactiveColor = inactive
+  , activeBorderColor = activetab
+  , inactiveBorderColor = inactive
+  , activeTextColor = base03
+  , inactiveTextColor = base00
+  }
+
+
+
+launcherCommand = "rofi -show run"
+
+myWorkspaces = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
+
+
+restartXMonad = "xmonad --recompile && xmonad --restart"
+
+
+myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
+	[ ((modm,			xK_Return	), spawn $ XMonad.terminal conf)
+	, ((modm,			xK_d		), spawn $ launcherCommand)
+	, ((modm,			xK_b		), spawn $ browser)
+	, ((modm, 			xK_x		), spawn $ editor)	
+	
+	, ((modm .|. shiftMask, 	xK_q		), kill)
+	, ((modm, 			xK_space	), sendMessage NextLayout)
+	, ((modm .|. shiftMask,		xK_space	), setLayout $ XMonad.layoutHook conf)
+        , ((modm,			xK_Up		), focusUp)
+	, ((modm, 			xK_Down		), focusDown)
+	, ((modm .|. shiftMask,		xK_Up		), windows W.swapUp)
+	, ((modm .|. shiftMask,		xK_Down		), windows W.swapDown)
+        , ((modm .|. controlMask, xK_Left), sendMessage $ pullGroup L)
+        , ((modm .|. controlMask, xK_Right), sendMessage $ pullGroup R)
+        , ((modm .|. controlMask, xK_Up), sendMessage $ pullGroup U)
+        , ((modm .|. controlMask, xK_Down), sendMessage $ pullGroup D)
+        , ((modm .|. controlMask, xK_m), withFocused (sendMessage . MergeAll))
+        , ((modm .|. controlMask, xK_u), withFocused (sendMessage . UnMerge))
+
+        --Switch tabs
+        , ((modm, xK_Left), onGroup W.focusUp')
+        , ((modm, xK_Right), onGroup W.focusDown')
+
+
+        
+        , ((modm .|. shiftMask,		xK_e		), io (exitWith ExitSuccess))
+	, ((modm .|. shiftMask,		xK_r		), spawn restartXMonad)
+
+        , ((modm, xK_f), sequence_ [ (withFocused $ windows . W.sink)
+                                   , (sendMessage $ XMonad.Layout.MultiToggle.Toggle MYFULL)
+                                   , (sendMessage $ ToggleStruts)])
+        , ((modm, xK_g), withFocused (sendMessage . UnMerge))
+        , ((modm .|. shiftMask, xK_g), withFocused (sendMessage . MergeAll))
+        , ((modm, xK_Tab), nextScreen)
+        , ((modm .|. shiftMask, xK_Tab), shiftNextScreen)
+
+        ]
+	++
+	[ ((m .|. modm, k), windows $ f i)
+        	| (i, k) <- zip (XMonad.workspaces conf) ([xK_1 .. xK_9] ++ [xK_0])
+        	, (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
+
+
+{-
+myLayout = tiled ||| Full ||| tabbed
+	where
+	  tiled = noFrillsDeco shrinkText topBarTheme $ smartSpacing 10 $ Tall nmaster delta ratio
+          tabbed = noFrillsDeco shrinkText topBarTheme $ smartSpacing 10 $ Tall nmaster delta ratio
+          nmaster = 1
+	  ratio = 1/2
+	  delta = 3/100
+-}
+
+{-
+myLayout = noFrillsDeco shrinkText topBarTheme
+         $ smartSpacing 10
+         $ flex
+  where
+    nmaster = 1
+    ratio = 1/2
+    delta = 3/100
+    tiled = Tall nmaster delta ratio
+    flex = windowNavigation
+           $ subLayout [] (Simplest ||| Accordion)
+           $ standard
+      where
+             standard = (ResizableTall 1 (1/20) (2/3) [])
+                        ||| ( ResizableTall 1 (1/20) (1/2) [])
+
+-}
+
+{-
+myLayout = fullscreenFloat
+         $ fullscreenToggle
+         $ flex
+  where
+    fullscreenToggle = mkToggle (single FULL)
+    addTopBar = noFrillsDeco shrinkText topBarTheme
+
+    flex = avoidStruts
+         $ windowNavigation
+         $ addTopBar
+         $ addTabs shrinkText tabTheme
+         $ subLayout [] (simpleTabbed)
+         $ stdlayout
+      where
+        stdlayout = smartSpacing 10
+                  $ ResizableTall 1 (1/20) (1/2) []
+-}
+
+data MYFULL = MYFULL deriving (Read, Show, Eq, Typeable)
+instance XMonad.Layout.MultiToggle.Transformer MYFULL Window where
+  transform MYFULL x k = k barFull (\_ -> x)
+
+barFull = Full
+
+
+myLayout = avoidStruts
+         $ windowNavigation
+         $ fullscreenFloat
+         $ addTopBar
+         $ subLayout [] (tabbed shrinkText tabTheme)
+         $ smartSpacing 10
+         $ boringWindows
+         $ Tall 1 (3/100) (1/2)
+  where
+    addTopBar = noFrillsDeco shrinkText topBarTheme
+    fullscreenFloat = mkToggle (single MYFULL)
+myStartupHook = do
+  spawn "killall compton; compton"
+  spawn "/home/grahnen/.screenlayout/default.sh"
+  spawn "/home/grahnen/.dotfiles/scripts/bg.sh"
+  spawn "taffybar"
+
+
+options = def
+	{ terminal = myTerminal
+	, focusFollowsMouse = myFocusFollowsMouse
+	, borderWidth = myBorderWidth
+        , modMask = myModMask
+	, keys = myKeys
+	, startupHook = myStartupHook
+	, layoutHook = myLayout
+        , workspaces = myWorkspaces
+	, manageHook = composeAll
+		[ (isFullscreen --> doFullFloat)
+                , manageDocks
+                , (className =? "explorer.exe") --> doFullFloat
+
+		--, (isFullscreen --> doFullFloat)
+		, manageHook def
+		]
+	, handleEventHook = XMonad.Hooks.EwmhDesktops.fullscreenEventHook <+> fadeWindowsEventHook <+> docksEventHook <+> handleEventHook def
+	}
+
+myFadeHook = composeAll [ opaque
+			, isUnfocused --> transparency 0.1
+			, (className =? "Firefox") --> opaque
+			, (className =? "explorer.exe") --> opaque
+			, isDialog --> opaque
+			]
+main = do
+  xmonad $ docks $ ewmh $ pagerHints $ options
+		{ logHook = fadeWindowsLogHook myFadeHook
+		}
