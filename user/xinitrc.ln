@@ -17,6 +17,6 @@ exec pa-applet &
 exec nm-applet &
 #exec ~/.screenlayout/default.sh
 #exec ~/.dotfiles/scripts/bg.sh
-#exec ~/.cabal/bin/taffybar &
+exec ~/.cabal/bin/taffybar &
 
 exec ~/.cabal/bin/xmonad

@@ -217,7 +217,7 @@ myStartupHook = do
   spawn "killall compton; compton"
   spawn "/home/grahnen/.screenlayout/default.sh"
   spawn "/home/grahnen/.dotfiles/scripts/bg.sh"
-  spawn "taffybar"
+--  spawn "taffybar"
 
 
 options = def
