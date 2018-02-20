@@ -1,13 +1,8 @@
 #!/bin/sh
+FILES=$(ls services)
 
 source ./scripts/functions
 SDIR=$(pwd)/services
-
-FILES=$(ls services)
-
-set -e
-cd "$(dirname "$0")/.."
-DOTFILES_ROOT=$(pwd -P)
 
 info 'linking services'
 overwrite_all=false backup_all=false skip_all=false

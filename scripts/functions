@@ -2,6 +2,10 @@
 #
 # bootstrap installs things.
 
+set -e
+cd "$(dirname "$0")/.."
+DOTFILES_ROOT=$(pwd -P)
+
 info () {
   printf "\r  [ \033[00;34m..\033[0m ] $1\n"
 }
@@ -21,7 +25,7 @@ fail () {
 }
 
 link_file () {
-  local src=$1 dst=$2
+  local src=$1 dst=$2 root=$3
 
   local overwrite= backup= skip=
   local action=
@@ -31,9 +35,9 @@ link_file () {
 
     if [ "$overwrite_all" == "false" ] && [ "$backup_all" == "false" ] && [ "$skip_all" == "false" ]
     then
-
+      
       local currentSrc="$(readlink $dst)"
-
+      
       if [ "$currentSrc" == "$src" ]
       then
 
@@ -90,9 +94,17 @@ link_file () {
 
   if [ "$skip" != "true" ]  # "false" or empty
   then
-    mkdir -p $(dirname $2) 
-    ln -s "$1" "$2"
-    success "linked $1 to $2"
+    if [ "$root" == "true" ]
+    then
+	info "Needs sudo to link $1"
+    	sudo mkdir -p $(dirname $2) 
+    	sudo ln -s "$1" "$2"
+   	success "linked $1 to $2"
+    else
+	mkdir -p $(dirname $2)
+	sudo ln -s "$1" "$2"
+	success "linked $1 to $2"
+    fi
   fi
 }
 install_submodules(){
