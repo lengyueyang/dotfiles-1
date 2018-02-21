@@ -67,7 +67,7 @@ myModMask = mod4Mask
 
 inactive = base03
 active = magenta
-activetab = green
+activetab = magenta
 
 ----Fake title for top border
 topBarTheme = def
@@ -105,11 +105,13 @@ restartXMonad = "xmonad --recompile && xmonad --restart"
 
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
-	[ ((modm,			xK_Return	), spawn $ XMonad.terminal conf)
+	[
+        -- Programs
+          ((modm,			xK_Return	), spawn $ XMonad.terminal conf)
 	, ((modm,			xK_d		), spawn $ launcherCommand)
 	, ((modm,			xK_b		), spawn $ browser)
-	, ((modm, 			xK_x		), spawn $ editor)	
-	
+	, ((modm, 			xK_x		), spawn $ editor)
+        -- Window managemant
 	, ((modm .|. shiftMask, 	xK_q		), kill)
 	, ((modm, 			xK_space	), sendMessage NextLayout)
 	, ((modm .|. shiftMask,		xK_space	), setLayout $ XMonad.layoutHook conf)
@@ -128,14 +130,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         , ((modm, xK_Left), onGroup W.focusUp')
         , ((modm, xK_Right), onGroup W.focusDown')
 
-
-        
+        -- Quit
         , ((modm .|. shiftMask,		xK_e		), io (exitWith ExitSuccess))
 	, ((modm .|. shiftMask,		xK_r		), spawn restartXMonad)
-
+        --Fullscreen
         , ((modm, xK_f), sequence_ [ (withFocused $ windows . W.sink)
                                    , (sendMessage $ XMonad.Layout.MultiToggle.Toggle MYFULL)
                                    , (sendMessage $ ToggleStruts)])
+        --Remove from tabs
         , ((modm, xK_g), withFocused (sendMessage . UnMerge))
         , ((modm .|. shiftMask, xK_g), withFocused (sendMessage . MergeAll))
         , ((modm, xK_Tab), nextScreen)
@@ -146,54 +148,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 	[ ((m .|. modm, k), windows $ f i)
         	| (i, k) <- zip (XMonad.workspaces conf) ([xK_1 .. xK_9] ++ [xK_0])
         	, (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
-
-
-{-
-myLayout = tiled ||| Full ||| tabbed
-	where
-	  tiled = noFrillsDeco shrinkText topBarTheme $ smartSpacing 10 $ Tall nmaster delta ratio
-          tabbed = noFrillsDeco shrinkText topBarTheme $ smartSpacing 10 $ Tall nmaster delta ratio
-          nmaster = 1
-	  ratio = 1/2
-	  delta = 3/100
--}
-
-{-
-myLayout = noFrillsDeco shrinkText topBarTheme
-         $ smartSpacing 10
-         $ flex
-  where
-    nmaster = 1
-    ratio = 1/2
-    delta = 3/100
-    tiled = Tall nmaster delta ratio
-    flex = windowNavigation
-           $ subLayout [] (Simplest ||| Accordion)
-           $ standard
-      where
-             standard = (ResizableTall 1 (1/20) (2/3) [])
-                        ||| ( ResizableTall 1 (1/20) (1/2) [])
-
--}
-
-{-
-myLayout = fullscreenFloat
-         $ fullscreenToggle
-         $ flex
-  where
-    fullscreenToggle = mkToggle (single FULL)
-    addTopBar = noFrillsDeco shrinkText topBarTheme
-
-    flex = avoidStruts
-         $ windowNavigation
-         $ addTopBar
-         $ addTabs shrinkText tabTheme
-         $ subLayout [] (simpleTabbed)
-         $ stdlayout
-      where
-        stdlayout = smartSpacing 10
-                  $ ResizableTall 1 (1/20) (1/2) []
--}
 
 data MYFULL = MYFULL deriving (Read, Show, Eq, Typeable)
 instance XMonad.Layout.MultiToggle.Transformer MYFULL Window where
@@ -215,9 +169,7 @@ myLayout = avoidStruts
     fullscreenFloat = mkToggle (single MYFULL)
 myStartupHook = do
   spawn "killall compton; compton"
-  spawn "/home/grahnen/.screenlayout/default.sh"
-  spawn "/home/grahnen/.dotfiles/scripts/bg.sh"
---  spawn "taffybar"
+--  spawn "taffybar"... Moved to .xinitrc
 
 
 options = def
@@ -242,8 +194,10 @@ options = def
 
 myFadeHook = composeAll [ opaque
 			, isUnfocused --> transparency 0.1
+                        --A transparent firefox makes pages hard to read
 			, (className =? "Firefox") --> opaque
-			, (className =? "explorer.exe") --> opaque
+                        --Don't bother fading wine windows :)
+                        , (className =? "explorer.exe") --> opaque
 			, isDialog --> opaque
 			]
 main = do
