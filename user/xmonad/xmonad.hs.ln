@@ -67,7 +67,7 @@ myModMask = mod4Mask
 
 inactive = base03
 active = magenta
-activetab = magenta
+activetab = green
 
 ----Fake title for top border
 topBarTheme = def
