@@ -11,3 +11,4 @@ if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; t
 fi
 
 PATH=$HOME/.cabal/bin:$PATH
+PATH=/opt/cuda/bin:$PATH
