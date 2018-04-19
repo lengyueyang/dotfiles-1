@@ -12,11 +12,14 @@ exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 #exec compton -CGb
 exec xfce4-power-manager &
 #exec ff-theme-util &
-exec fix_xcursor &
+#exec fix_xcursor &
 exec pa-applet &
 exec nm-applet &
 #exec ~/.screenlayout/default.sh
-#exec ~/.dotfiles/scripts/bg.sh
-exec ~/.cabal/bin/taffybar &
 
-exec ~/.cabal/bin/xmonad
+exec ~/.dotfiles/scripts/bg.sh &
+exec ~/.config/monitor/monitor.sh &
+
+#exec ~/.cabal/bin/taffybar &
+exec polybar top -r &
+exec xmonad

@@ -1,2 +1,2 @@
 #!/bin/bash
-feh --bg-scale --randomize ~/ownCloud/Wallpapers/*
+feh --bg-scale --randomize ~/nextcloud/Wallpapers/*

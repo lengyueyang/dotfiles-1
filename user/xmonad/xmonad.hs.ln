@@ -1,15 +1,17 @@
 {-# LANGUAGE AllowAmbiguousTypes, DeriveDataTypeable, MultiParamTypeClasses, TypeSynonymInstances #-}
-
 import XMonad
 import Data.Monoid
+import Data.List (sortBy)
+import Data.Function (on)
+import Control.Monad (forM_, join)
+
 import System.Exit
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
-import XMonad.Util.Run(spawnPipe, hPutStrLn)
+import XMonad.Util.Run(spawnPipe, hPutStrLn, safeSpawn)
 import XMonad.Actions.CycleWS
 
 import XMonad.Hooks.EwmhDesktops
-import System.Taffybar.Hooks.PagerHints(pagerHints)
 
 import XMonad.Layout.BoringWindows
 import XMonad.Layout.ResizableTile
@@ -70,7 +72,7 @@ active = magenta
 activetab = green
 
 ----Fake title for top border
-topBarTheme = def
+topBarTheme = defaultTheme
 	{ fontName = myFont
 	, inactiveBorderColor = inactive
 	, inactiveColor = inactive
@@ -84,7 +86,7 @@ topBarTheme = def
 	}
 
 
-tabTheme = def
+tabTheme = defaultTheme
   { fontName = myFont
   , activeColor = activetab
   , inactiveColor = inactive
@@ -172,7 +174,7 @@ myStartupHook = do
 --  spawn "taffybar"... Moved to .xinitrc
 
 
-options = def
+options = defaultConfig
 	{ terminal = myTerminal
 	, focusFollowsMouse = myFocusFollowsMouse
 	, borderWidth = myBorderWidth
@@ -187,9 +189,8 @@ options = def
                 , (className =? "explorer.exe") --> doFullFloat
 
 		--, (isFullscreen --> doFullFloat)
-		, manageHook def
 		]
-	, handleEventHook = XMonad.Hooks.EwmhDesktops.fullscreenEventHook <+> fadeWindowsEventHook <+> docksEventHook <+> handleEventHook def
+	, handleEventHook = XMonad.Hooks.EwmhDesktops.fullscreenEventHook <+> fadeWindowsEventHook <+> docksEventHook
 	}
 
 myFadeHook = composeAll [ opaque
@@ -200,7 +201,27 @@ myFadeHook = composeAll [ opaque
                         , (className =? "explorer.exe") --> opaque
 			, isDialog --> opaque
 			]
+
+
+polybarHook = do
+  winset <- gets windowset
+  --title <- maybe (return "") (fmap show . getName) . W.peek $ winset
+  let currWs = W.currentTag winset
+  let activeWs = map (W.tag . W.workspace) $ W.visible winset
+  let wss = myWorkspaces
+  let wsStr = join $ map (fmt currWs activeWs) wss  -- $ sort' wss
+
+  --io $ appendFile "/tmp/.xmonad-title-log" (title ++ "\n")
+  io $ appendFile "/tmp/.xmonad-workspace-log" (wsStr ++ "\n")
+
+  where fmt currWs activeWs ws
+          | currWs == ws = "[" ++ ws ++ "]"
+          | ws `elem` activeWs= "(" ++ ws ++ ")"
+          | otherwise = " " ++ ws ++ " "
+        --sort' = sortBy (compare `on` (!! 0))
 main = do
-  xmonad $ docks $ ewmh $ pagerHints $ options
-		{ logHook = fadeWindowsLogHook myFadeHook
+  forM_ [".xmonad-workspace-log", ".xmonad-title-log"] $ \file -> do
+    safeSpawn "mkfifo" ["/tmp/" ++ file]
+  xmonad $ docks $ ewmh $ options
+		{ logHook = polybarHook <+> fadeWindowsLogHook myFadeHook
 		}

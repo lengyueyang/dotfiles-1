@@ -11,7 +11,7 @@ fi
 
 # Customize to your needs...
 DEFAULT_USER=grahnen
-. ~/.zfiles/z.sh
+. ~/.zdir/z.sh
 
 export XKB_DEFAULT_LAYOUT=se
 
