@@ -1,6 +1,7 @@
 {-# LANGUAGE AllowAmbiguousTypes, DeriveDataTypeable, MultiParamTypeClasses, TypeSynonymInstances #-}
 import XMonad
 import Data.Monoid
+import Data.Maybe (isJust)
 import Data.List (sortBy)
 import Data.Function (on)
 import Control.Monad (forM_, join)
@@ -187,7 +188,7 @@ options = defaultConfig
 		[ (isFullscreen --> doFullFloat)
                 , manageDocks
                 , (className =? "explorer.exe") --> doFullFloat
-
+		, (className =? "Guake") --> doFloat
 		--, (isFullscreen --> doFullFloat)
 		]
 	, handleEventHook = XMonad.Hooks.EwmhDesktops.fullscreenEventHook <+> fadeWindowsEventHook <+> docksEventHook
@@ -208,20 +209,27 @@ polybarHook = do
   --title <- maybe (return "") (fmap show . getName) . W.peek $ winset
   let currWs = W.currentTag winset
   let activeWs = map (W.tag . W.workspace) $ W.visible winset
-  let wss = myWorkspaces
+  let wss = sort' $ W.workspaces winset
   let wsStr = join $ map (fmt currWs activeWs) wss  -- $ sort' wss
 
   --io $ appendFile "/tmp/.xmonad-title-log" (title ++ "\n")
   io $ appendFile "/tmp/.xmonad-workspace-log" (wsStr ++ "\n")
 
   where fmt currWs activeWs ws
-          | currWs == ws = "[" ++ ws ++ "]"
-          | ws `elem` activeWs= "(" ++ ws ++ ")"
-          | otherwise = " " ++ ws ++ " "
-        --sort' = sortBy (compare `on` (!! 0))
+          | currWs == W.tag ws = "[" ++ W.tag ws ++ "]"
+          | (W.tag ws) `elem` activeWs = "(" ++ W.tag ws ++ ")"
+          | isJust $ W.stack ws = " " ++ W.tag ws ++ " "
+          | otherwise = ""
+        sort' = sortBy (\a b -> earlier myWorkspaces (W.tag a) (W.tag b))
+        earlier (x:xs) a b =
+          if a == x then LT
+          else if b == x then GT
+          else earlier xs a b
+        earlier [] _ _ = EQ
 main = do
   forM_ [".xmonad-workspace-log", ".xmonad-title-log"] $ \file -> do
     safeSpawn "mkfifo" ["/tmp/" ++ file]
   xmonad $ docks $ ewmh $ options
 		{ logHook = polybarHook <+> fadeWindowsLogHook myFadeHook
+                
 		}

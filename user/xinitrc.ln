@@ -15,6 +15,7 @@ exec xfce4-power-manager &
 #exec fix_xcursor &
 exec pa-applet &
 exec nm-applet &
+exec guake &
 #exec ~/.screenlayout/default.sh
 
 exec ~/.dotfiles/scripts/bg.sh &

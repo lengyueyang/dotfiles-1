@@ -4,9 +4,11 @@ bg = #2E3436
 
 [bar/top]
 tray-position = right
+tray-maxsize=100
 
-font-0 = "Serif:size=14:weight=bold;2"
-
+fixed-center=true
+font-0 = "Hack:size=16;3"
+font-1 = "Serif:size=14;2"
 
 monitor=DisplayPort-0
 ;locale = sv_SE.UTF-8
@@ -19,17 +21,23 @@ background = ${colors.bg}
 
 modules-left = workspaces
 modules-center = date
+modules-right = cpu
+
 
 [module/workspaces]
 type=custom/script
 exec=~/.config/polybar/xmonad.sh
 exec-if = [ -p /tmp/.xmonad-workspace-log ]
 tail = true
-font=Serif
+label-font = 2
+
 [module/date]
 type = internal/date
 interval = 1.0
-date = %d/%m-%Y
+date = %A %d %B %Y
 time = %H:%M
-label = %time%  %date%
+label =%time% %date%
 
+[module/cpu]
+type = internal/cpu
+label="%percentage%% "
